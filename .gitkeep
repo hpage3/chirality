@@ -1,0 +1,7 @@
+touch 01_extract/chains_pdb/.gitkeep
+touch 01_extract/cif_cache/.gitkeep
+touch 02_boxes/.gitkeep
+touch 03_fingerprints/.gitkeep
+touch 04_sb/output/.gitkeep
+touch 06_plots/output/.gitkeep
+
