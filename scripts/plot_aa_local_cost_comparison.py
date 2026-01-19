@@ -43,22 +43,18 @@ def detect_normalized(df: pd.DataFrame, tol=1e-3) -> bool:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--aa-root", default="05_aa_local")
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--theta", required=True, help="Theta-only aa_cost_per_run.tsv")
+    ap.add_argument("--rms",   required=True, help="RMS-only aa_cost_per_run.tsv")
+    ap.add_argument("--both",  required=True, help="Theta+RMS aa_cost_per_run.tsv")
+    ap.add_argument("--out",   required=True)
+
     args = ap.parse_args()
 
-    root = Path(args.aa_root)
-
-    files = {
-        "theta": root / "theta" / "aa_cost_per_run.tsv",
-        "rms":   root / "rms"   / "aa_cost_per_run.tsv",
-        "both":  root / "both"  / "aa_cost_per_run.tsv",
-    }
-
-
-    dfs = []
-    for model, path in files.items():
-        dfs.append(load_table(path, model))
+    dfs = [
+        load_table(Path(args.theta), "theta"),
+        load_table(Path(args.rms),   "rms"),
+        load_table(Path(args.both),  "both"),
+    ]
 
     df = pd.concat(dfs, ignore_index=True)
 

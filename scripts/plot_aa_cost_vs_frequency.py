@@ -7,6 +7,13 @@ AA_ORDER = [
     "ALA","ARG","ASN","ASP","CYS","GLN","GLU","GLY","HIS","ILE",
     "LEU","LYS","MET","PHE","PRO","SER","THR","TRP","TYR","VAL"
 ]
+AA3_TO_AA1 = {
+    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D",
+    "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G",
+    "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K",
+    "MET": "M", "PHE": "F", "PRO": "P", "SER": "S",
+    "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V",
+}
 
 def main():
     ap = argparse.ArgumentParser()
@@ -22,12 +29,23 @@ def main():
     # Load AA counts
     # ----------------------------
     counts = pd.read_csv(args.counts, sep="\t")
+
+    counts["aa"] = (
+        counts["aa"]
+        .str.strip()
+        .str.upper()
+        .map(AA3_TO_AA1)
+    )
+
     counts = counts.set_index("aa")
+
 
     # ----------------------------
     # Load AA costs and average across runs
     # ----------------------------
     cost = pd.read_csv(args.aa_cost, sep="\t")
+    cost["aa"] = cost["aa"].str.strip().str.upper()
+
 
     cost_mean = (
         cost
@@ -35,7 +53,8 @@ def main():
         .agg(mean_cost=("mean_cost", "mean"))
         .set_index("aa")
     )
-
+ 
+    
     # ----------------------------
     # Merge
     # ----------------------------

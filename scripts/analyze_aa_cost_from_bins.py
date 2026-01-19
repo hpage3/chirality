@@ -92,6 +92,8 @@ def main():
         bin_cost = load_bin_cost(run)
 
         aa_cost_run = defaultdict(float)
+        aa_exposure_run = defaultdict(int)
+
 
         for prefix, (n_windows, n_planes, boxes) in structures.items():
             planes_per_window = math.ceil(n_planes / n_windows)
@@ -118,8 +120,11 @@ def main():
                     aa_j = AA3_TO_1.get(str(row["resname_j"]).upper(), None)
                     if aa_i in AA20:
                         aa_cost_run[aa_i] += cost_p / 2.0
+                        aa_exposure_run[aa_i] += 1
                     if aa_j in AA20:
                         aa_cost_run[aa_j] += cost_p / 2.0
+                        aa_exposure_run[aa_j] += 1
+
 
         if args.normalize:
             total = sum(aa_cost_run.values())
@@ -128,12 +133,19 @@ def main():
                     aa_cost_run[aa] /= total
 
         for aa in AA20:
+            if aa_exposure_run.get(aa, 0) > 0:
+                mean_cost = aa_cost_run[aa] / aa_exposure_run[aa]
+            else:
+                mean_cost = 0.0
+
             per_run_rows.append({
                 "run": run.name,
                 "seed": seed,
                 "aa": aa,
-                "mean_cost": float(aa_cost_run.get(aa, 0.0))
+                "mean_cost": float(mean_cost)
             })
+
+ 
 
     per_run_df = pd.DataFrame(per_run_rows)
     per_run_df.to_csv(out_dir / "aa_cost_per_run.tsv", sep="\t", index=False)
